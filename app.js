@@ -1,11 +1,7 @@
 const express = require('express');
 const app = express();
-const cors = require('cors');
-const chess = require('ShallowPink');
+const Chess = require('shallowpink');
 
-
-
-app.use(cors());
 app.use(express.json());
 
 /* define API endpoints here */
@@ -22,9 +18,25 @@ app.post('/move', (request, response) => {
         response.status(400).json({"message": "move string missing from request body"});
         return;
     }
-    // if (request.body.move)
-    // const chess = new Chess();
-        
-}
+    let chess;
+    try {
+        chess = new Chess(request.body.fen);
+    } catch (error) {
+        response.status(400).json({"message": "invalid FEN string"});
+        return;
+    }     
+    let result = chess.move(request.body.move);
+    
+    if ([Chess.Status.INVALIDMOVE, Chess.Status.PUTSINCHECK, Chess.Status.STILLINCHECK].includes(result)) {
+        response.status(400).json({"message": "invalid move string"});
+        return;
+    }
+
+    response.status(200).json({"message": result}); 
+});
+
+// app.post('/suggest', (request, response) => {
+//    
+// }
 
 module.exports = app;
