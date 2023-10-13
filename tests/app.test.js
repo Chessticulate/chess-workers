@@ -33,12 +33,12 @@ describe('POST /move', () => {
     it('returns 400 when move string is invalid', async () => {
         const response = await api.post('/move').send({ fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', move: 'easdfasdf4', states: {} });
         expect(response.statusCode).toBe(400);
-        expect(response.body.message).toBe('invalid move string');
+        expect(response.body.message).toBe('invalid move');
     });
     it('returns 200 when given valid FEN and move string', async () => {
         const response = await api.post('/move').send({ fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', move: 'e4', states: {} });
         expect(response.statusCode).toBe(200);
-        expect(response.body.message).toBe('move ok');
+        expect(response.body.status).toBe('move ok');
         expect(response.body.fen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1');
         expect(response.body.states).toStrictEqual({ 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR': 1 });
     });
@@ -68,7 +68,6 @@ describe('POST /suggest', () => {
     });
     it('returns 409 when game is over and any move is attempted', async () => {
         const response = await api.post('/suggest').send({ fen: 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3', states: {} });
-        console.log(response.body.message);
         expect(response.statusCode).toBe(409);
         expect(response.body.message).toBe('the game is already over');
     });

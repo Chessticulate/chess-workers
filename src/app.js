@@ -2,10 +2,17 @@ const express = require('express');
 const app = express();
 const Chess = require('shallowpink');
 const config = require('./config');
+const workerpool = require('workerpool');
+
+let poolConfig = { minWorkers: 'max' };
+if (config.N_WORKERS) {
+    poolConfig.maxWorkers = config.N_WORKERS;
+}
+const pool = workerpool.pool(__dirname + '/workers', poolConfig);
 
 app.use(express.json());
 
-app.post('/move', (request, response) => {
+app.post('/move', async (request, response) => {
     if (request.body.fen === undefined) {
         response.status(400).json({'message': '\'fen\' missing from request body'});
         return;
@@ -30,26 +37,28 @@ app.post('/move', (request, response) => {
     if (typeof(request.body.states) !== 'object') {
         response.status(400).json({'message': '\'states\' must be an object'});
         return;
-    }
- 
-    let chess;
+    }    
+
     try {
-        chess = new Chess(request.body.fen, request.body.states);
-    } catch (error) {
-        response.status(400).json({'message': 'invalid FEN string'});
-        return;
+        const result = await pool.exec('move', [request.body.fen, request.body.states, request.body.move]);
+        if (result === null) {
+            response.status(409).json({'message': 'the game is already over'});
+            return;
+        }
+        let statusCode = [Chess.Status.INVALIDMOVE, Chess.Status.PUTSINCHECK, Chess.Status.STILLINCHECK].includes(result.message) ?
+            400 : 200;
+        response.status(statusCode).json(result);
+    } catch(error) {
+        if (error.name === 'InvalidFENException') {
+            response.status(400).json({'message': 'invalid FEN string'});
+            return;
+        }
+        console.log(error);
+        response.status(500).json({ 'message': 'Internal Server Error' });
     }
-    let result = chess.move(request.body.move);
-
-    if ([Chess.Status.INVALIDMOVE, Chess.Status.PUTSINCHECK, Chess.Status.STILLINCHECK].includes(result)) {
-        response.status(400).json({'message': 'invalid move string'});
-        return;
-    }
-
-    response.status(200).json({'message': result, 'fen': chess.toFEN(), 'states': chess.states}); 
 });
 
-app.post('/suggest', (request, response) => {
+app.post('/suggest', async (request, response) => {
     if (request.body.fen === undefined) {
         response.status(400).json({'message': '\'fen\' missing from request body'});
         return;
@@ -67,22 +76,21 @@ app.post('/suggest', (request, response) => {
         return;
     }
 
-    let chess;
     try {
-        chess = new Chess(request.body.fen, request.body.states);
+        const result = await pool.exec('suggest', [request.body.fen, request.body.states, config.AI_DEPTH]);
+        if (result === null) {
+            response.status(409).json({'message': 'the game is already over'});
+            return;
+        }
+        response.status(200).json({ move: result });
     } catch (error) {
-        response.status(400).json({'message': 'invalid FEN string'});
-        return;
+        if (error.name === 'InvalidFENException') {
+            response.status(400).json({'message': 'invalid FEN string'});
+            return;
+        }
+        console.log(error);
+        response.status(500).json({ 'message': 'Internal Server Error' });
     }
-
-    if (chess.gameOver) {
-        response.status(409).json({'message': 'the game is already over'});
-        return;
-    }
-
-    let suggestedMove = chess.suggestMove(config.AI_DEPTH);
-
-    response.status(200).json({ 'move': suggestedMove });
 });
 
 module.exports = app;
