@@ -1,6 +1,6 @@
 {
   "name": "chess-workers",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Chess Workers Service",
   "main": "index.js",
   "scripts": {

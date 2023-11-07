@@ -4,7 +4,7 @@
 # It is responsible for comparing the versions of feature
 # branches with the version of the main branch. It will
 # close with a non-zero exit code if the current
-# feature branch's pyproject.toml version string is not
+# feature branch's package.json version string is not
 # greater than that of the main branch.
 
 if [ -n "$(git branch | grep '* main')" ]
@@ -23,7 +23,7 @@ THIS_BRANCH_VERSION=$(get_version)
 
 cd ..
 git clone -b main --single-branch https://github.com/chessticulate/chess-workers.git chess-workers_main> /dev/null
-cd chess-workers_main
+cd chess-workers_main 
 
 MAIN_BRANCH_VERSION=$(get_version)
 
@@ -31,7 +31,7 @@ MAIN_BRANCH_VERSION=$(get_version)
 NODE_COMPARE_VERS='const cv = require("compare-versions");
 const out = cv.compareVersions(process.argv[1], process.argv[2]);
 process.exit(out < 0 ? 0 : 1)'
-npm install -g compare-versions
+npm install compare-versions
 node -e "$NODE_COMPARE_VERS" $MAIN_BRANCH_VERSION $THIS_BRANCH_VERSION
 
 EXIT_CODE=$?
