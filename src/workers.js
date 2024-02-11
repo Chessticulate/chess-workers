@@ -27,8 +27,13 @@ function move(fen, states, moveStr) {
     return {status: status, fen: chess.toFEN(), states: chess.states};
 }
 
+function newGame() {
+    const chess = new Chess();
+    return {fen: chess.toFEN(), states: chess.states};
+}
 // create a worker and register public functions
 workerpool.worker({
     suggest: suggest,
-    move: move
+    move: move,
+    newGame: newGame
 });

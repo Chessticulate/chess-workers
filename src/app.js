@@ -93,4 +93,9 @@ app.post('/suggest', async (request, response) => {
     }
 });
 
+app.get('/new', async (request, response) => {
+    game = await pool.exec('newGame', [])
+    response.status(200).json(game);        
+});
+
 module.exports = app;
