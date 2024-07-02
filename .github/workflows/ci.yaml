@@ -75,8 +75,8 @@ jobs:
                 push: true
                 platforms: linux/amd64
                 tags: |
-                  ghcr.io/chessticulate/chessticulate-api-linux-amd64:v${{ env.VERSION }}
-                  ghcr.io/chessticulate/chessticulate-api-linux-amd64:latest
+                  ghcr.io/chessticulate/chess-workers-linux-amd64:v${{ env.VERSION }}
+                  ghcr.io/chessticulate/chess-workers-linux-amd64:latest
 
             - name: Build and push arm64 image
               uses: docker/build-push-action@v6
@@ -84,5 +84,6 @@ jobs:
                 push: true
                 platforms: linux/arm64/v8
                 tags: |
-                  ghcr.io/chessticulate/chessticulate-api-linux-arm64v8:v${{ env.VERSION }}
-                  ghcr.io/chessticulate/chessticulate-api-linux-arm64v8:latest
+                  ghcr.io/chessticulate/chess-workers-linux-arm64v8:v${{ env.VERSION }}
+                  ghcr.io/chessticulate/chess-workers-linux-arm64v8:latest
+
