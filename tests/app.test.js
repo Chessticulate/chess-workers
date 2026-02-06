@@ -40,7 +40,7 @@ describe('POST /move', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.status).toBe('move ok');
         expect(response.body.fen).toBe('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1');
-        expect(response.body.states).toStrictEqual({ 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR': 1 });
+        expect(response.body.states).toStrictEqual({ '9384546495678726550': 1 });
     });
 });
 
