@@ -2,6 +2,8 @@ name: libchess-ci
 on:
     push:
         branches: [ '**' ]
+    repository_dispatch:
+        types: [engine-update]
 
 jobs:
     test:
